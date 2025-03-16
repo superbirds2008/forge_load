@@ -12,7 +12,7 @@ jobs:
     permissions: write-all
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, debian-latest, centos-latest]
         arch: [x86, ARM64]
         exclude:
           - os: ubuntu-latest

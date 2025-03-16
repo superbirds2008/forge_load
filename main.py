@@ -26,7 +26,8 @@ class Monitor(threading.Thread):
 
   def __init__(self,id):
     super(Monitor, self).__init__()
-    self.setDaemon(True)
+    # self.setDaemon(True)
+    self.daemon = True
     self._queue = deque([0] * 10, 10)
     self.avg_load = 0
     self.max_load = 0
