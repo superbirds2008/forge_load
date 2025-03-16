@@ -18,10 +18,10 @@ import os
 import setproctitle
 import argparse
 CPU_COUNT = psutil.cpu_count()
-DEBUG = bool(os.environ.get("DEBUG", os.environ.get("DEBUG", False)))
+DEBUG = bool(os.environ.get("DEBUG", os.environ.get("debug", False)))
 
 class Monitor(threading.Thread):
-  """ 后台检测当前GPU占用率
+  """ 后台检测当前CPU占用率
   """
 
   def __init__(self,id):
