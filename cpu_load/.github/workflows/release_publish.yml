@@ -9,6 +9,7 @@ env:
   webex_user_email: pengzhan@cisco.com
 jobs:
   build_linux_binary:
+    permissions: write-all
     strategy:
       matrix:
         os: [ubuntu-latest]
