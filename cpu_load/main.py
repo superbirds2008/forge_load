@@ -14,19 +14,23 @@ import multiprocessing
 import time
 from collections import deque
 import psutil
-
+import os
+import setproctitle
+import argparse
 CPU_COUNT = psutil.cpu_count()
+DEBUG = bool(os.environ.get("DEBUG", os.environ.get("DEBUG", False)))
 
 class Monitor(threading.Thread):
   """ 后台检测当前GPU占用率
   """
 
-  def __init__(self):
+  def __init__(self,id):
     super(Monitor, self).__init__()
     self.setDaemon(True)
     self._queue = deque([0] * 10, 10)
     self.avg_load = 0
     self.max_load = 0
+    self.id = id
 
   def update(self, ):
     load = self.get_current_load()
@@ -50,11 +54,12 @@ class Worker(multiprocessing.Process):
   - 如果monitor检测有其他程序争抢CPU，峰值超过阈值，则自动切断运行
   """
 
-  def __init__(self, target=50):
+  def __init__(self, id, target=50):
     super(Worker, self).__init__()
     self.target = target
     self.multiplier = 1
     self.daemon = True
+    self.id = id
 
 
   @staticmethod
@@ -100,13 +105,18 @@ class Worker(multiprocessing.Process):
 
 
   def run(self):
-    monitor = Monitor()
+    monitor = Monitor(self.id)
     monitor.start()
-    print("Monitor started: %s" % monitor.is_alive())
+    if DEBUG:
+      print("Monitor %d started: %s" % (monitor.id,monitor.is_alive()))
     time.sleep(5)
-    print("Initial average load", monitor.avg_load)
+    if DEBUG:
+      print("Core %d initial average load: %.0f" % (monitor.id, monitor.avg_load))
     while True:
-      if monitor.max_load > self.target * 1.1:
+      if DEBUG:
+        print("Core %d average load: %.0f, max load: %d" % (monitor.id, monitor.avg_load, monitor.max_load))
+      # if monitor.max_load > self.target * 1.1:
+      if monitor.avg_load > self.target * 1.1:
         sec = random.random() * 3 + 1
         # print("Idle for %ss with max_load %s, avg_load %s" % (sec, monitor.max_load, monitor.avg_load))
         self.idle_awhile(sec)
@@ -120,15 +130,20 @@ class Worker(multiprocessing.Process):
 
 
 if __name__ == "__main__":
-  import os
-  import setproctitle
-  setproctitle.setproctitle("forge_load_cpu")
-  target = float(os.environ.get("TARGET", 55))
+
+  target = float(os.environ.get("TARGET", os.environ.get("target", 55)))
+  parser = argparse.ArgumentParser(description="CPU Load Monitor(syntax: DEBUG=True TARGET=55 soss-monitor), default load is 55")
+  args = parser.parse_args()
+
+  setproctitle.setproctitle("cpu_load_monitor")
   workers = []
+  if DEBUG:
+    print(f"target cpu load is {target}%")
   for i in range(CPU_COUNT):
-    worker = Worker(target)
+    worker = Worker(i, target)
     worker.start()
-    print("Worker %d started: %s" % (i, worker.is_alive()))
+    if DEBUG:
+      print("Worker %d started: %s" % (i, worker.is_alive()))
     workers.append(worker)
   for worker in workers:
     worker.join()
