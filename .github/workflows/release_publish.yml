@@ -82,7 +82,7 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
           const fs = require('fs');
-          const releaseNote = fs.readFileSync('release_note.txt', 'utf8');
+          const releaseNote = fs.readFileSync('release_note.md', 'utf8');
           const createRelease = async () => {
             const { data: release } = await github.rest.repos.createRelease({
               owner: context.repo.owner,
