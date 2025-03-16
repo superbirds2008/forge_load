@@ -12,15 +12,13 @@ jobs:
     permissions: write-all
     strategy:
       matrix:
-        os: [ubuntu-latest, debian-latest, centos-latest]
+        os: [ubuntu-latest, ubuntu-24.04-arm]
         arch: [x86, ARM64]
         exclude:
           - os: ubuntu-latest
             arch: ARM64
-          - os: debian-latest 
-            arch: ARM64
-          - os: centos-latest
-            arch: ARM64
+          - os: ubuntu-24.04-arm
+            arch: x86 
     runs-on: ${{ matrix.os }}
     continue-on-error: true    
     steps:
