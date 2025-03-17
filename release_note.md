@@ -8,7 +8,7 @@ chmod +x ./install.sh
 ```
 4. 测试运行（无环境变量设置时默认关闭调试模式，CPU占用率目标为55%）
 ```shell
-./debug=1 target=50 soss-monitor-<os>-<arch>.bin
+debug=1 target=50 ./soss-monitor-<os>-<arch>.bin
 ```
 上述命令打开调式模式输出CPU实时占用率，target=50表示CPU的占用率目标
 5. 安装服务
